@@ -19,7 +19,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--results-dir",
         type=str,
-        default="/home/naskripko/gl/onebuttonbenches/benches/gorilla/berkeley-function-call-leaderboard/score/data_overall.csv",
+        default="benches/gorilla/berkeley-function-call-leaderboard/score/data_overall.csv",
         help="Path to the CSV file containing evaluation results"
     )
     
@@ -104,15 +104,21 @@ def create_comparison_table(
     display_new: str
 ) -> pd.DataFrame:
     """Create a comparison table with old model, new model, and difference columns."""
-    model_to_display = {model_new: display_new, model_old: display_old}
+    # Create a mapping from model names to display names
+    model_to_display = {model_old: display_old, model_new: display_new}
     main_results_named = main_results.copy()
     main_results_named.index = results["Model"].map(model_to_display)
     
-    # Ensure OLD model column comes before NEW model column
-    df_display = main_results_named.loc[[display_old, display_new]].T
+    # Create the comparison DataFrame with proper ordering
+    # Get the data for each model using their display names
+    old_data = main_results_named.loc[display_old]
+    new_data = main_results_named.loc[display_new]
     
-    # Reorder columns to put OLD before NEW
-    df_display = df_display[[display_old, display_new]]
+    # Create DataFrame with old model first, then new model
+    df_display = pd.DataFrame({
+        display_old: old_data,
+        display_new: new_data
+    })
     
     # Compute difference (NEW - OLD)
     df_display["Diff"] = df_display[display_new] - df_display[display_old]
