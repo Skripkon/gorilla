@@ -317,9 +317,9 @@ api_inference_model_map = {
         is_fc_model=False,
         underscore_to_dot=False,
     ),
-    "gpt-4o-2024-11-20-FC": ModelConfig(
-        model_name="gpt-4o-2024-11-20",
-        display_name="GPT-4o-2024-11-20 (FC)",
+    "gpt-4o-FC": ModelConfig(
+        model_name="gpt-4o",
+        display_name="GPT-4o (FC)",
         url="https://openai.com/index/hello-gpt-4o/",
         org="OpenAI",
         license="Proprietary",
@@ -2067,6 +2067,36 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
+
+    #########################################################
+    # GigaChat models
+    #########################################################
+    "GigaChat-3-ULTRA--IFT-FC": ModelConfig(
+        model_name="GigaChat-3-ULTRA--IFT-FC",
+        display_name="GigaChat 3 ULTRA (IFT)",
+        url="https://giga.chat",
+        org="SberDevices",
+        license="Proprietary",
+        model_handler=GigaChatHandler,
+        input_price=10,
+        output_price=10,
+        is_fc_model=True,
+        underscore_to_dot=True,
+    ),
+
+    "GigaChat-3-ULTRA--PROD-FC": ModelConfig(
+        model_name="GigaChat-3-ULTRA--PROD-FC",
+        display_name="GigaChat 3 ULTRA (PROD)",
+        url="https://giga.chat",
+        org="SberDevices",
+        license="Proprietary",
+        model_handler=GigaChatHandler,
+        input_price=10,
+        output_price=10,
+        is_fc_model=True,
+        underscore_to_dot=True,
+    ),
+
     "GigaChat-2-MAX--IFT-FC": ModelConfig(
         model_name="GigaChat-2-MAX--IFT-FC",
         display_name="GigaChat 2 MAX (IFT)",
@@ -2079,6 +2109,7 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
+
     "GigaChat-2-Pro--IFT-FC": ModelConfig(
         model_name="GigaChat-2-Pro--IFT-FC",
         display_name="GigaChat 2 Pro (IFT)",
@@ -2091,6 +2122,7 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
+
     "GigaChat-2--IFT-FC": ModelConfig(
         model_name="GigaChat-2--IFT-FC",
         display_name="GigaChat 2 (IFT)",
@@ -2103,6 +2135,7 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
+
     "GigaChat-2--PROD-FC": ModelConfig(
         model_name="GigaChat-2--PROD-FC",
         display_name="GigaChat 2 (PROD)",
@@ -2115,6 +2148,7 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
+
     "GigaChat-2-Pro--PROD-FC": ModelConfig(
         model_name="GigaChat-2-Pro--PROD-FC",
         display_name="GigaChat 2 Pro (PROD)",
@@ -2127,6 +2161,7 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
+
     "GigaChat-2-MAX--PROD-FC": ModelConfig(
         model_name="GigaChat-2-MAX--PROD-FC",
         display_name="GigaChat 2 MAX (PROD)",
@@ -2139,6 +2174,7 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     )
+    #########################################################
 }
 
 

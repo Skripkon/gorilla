@@ -5,9 +5,16 @@ Generates an HTML table showing performance differences between old and new mode
 """
 
 import argparse
+import sys
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple
+
+_script_dir = Path(__file__).resolve().parent
+_bfcl_root = _script_dir.parent.parent
+if str(_bfcl_root) not in sys.path:
+    sys.path.insert(0, str(_bfcl_root))
+
+from bfcl_eval.utils import load_dataset_entry
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -68,8 +75,7 @@ def load_and_filter_results(results_path: str, model_old: str, model_new: str) -
     return results
 
 
-def get_evaluation_columns() -> List[str]:
-    """Return the list of evaluation column names."""
+def get_evaluation_columns() -> list[str]:
     return [
         "Non-Live Simple AST",
         "Non-Live Multiple AST",
@@ -87,7 +93,38 @@ def get_evaluation_columns() -> List[str]:
     ]
 
 
-def process_results(results: pd.DataFrame, column_names: List[str]) -> pd.DataFrame:
+COLUMN_TO_BFCL_CATEGORIES: dict[str, list[str]] = {
+    "Non-Live Simple AST": ["simple_python", "simple_java", "simple_javascript"],
+    "Non-Live Multiple AST": ["multiple"],
+    "Live Simple AST": ["live_simple"],
+    "Live Multiple AST": ["live_multiple"],
+    "Relevance Detection": ["live_relevance"],
+    "Irrelevance Detection": ["irrelevance", "live_irrelevance"],
+    "Multi Turn Base": ["multi_turn_base"],
+    "Multi Turn Miss Func": ["multi_turn_miss_func"],
+    "Multi Turn Miss Param": ["multi_turn_miss_param"],
+    "Multi Turn Long Context": ["multi_turn_long_context"],
+    "Memory KV": ["memory_kv"],
+    "Memory Vector": ["memory_vector"],
+    "Memory Recursive Summarization": ["memory_rec_sum"],
+}
+
+
+def get_subset_sizes(column_names: list[str]) -> dict[str, int]:
+    sizes = {}
+    for col in column_names:
+        categories = COLUMN_TO_BFCL_CATEGORIES[col]
+        total = 0
+        for cat in categories:
+            entries = load_dataset_entry(
+                cat, include_prereq=False, include_language_specific_hint=False
+            )
+            total += len(entries)
+        sizes[col] = total
+    return sizes
+
+
+def process_results(results: pd.DataFrame, column_names: list[str]) -> pd.DataFrame:
     """Process results by extracting relevant columns and converting percentages to floats."""
     main_results = results[column_names]
     # Convert percentage strings to float
@@ -96,42 +133,43 @@ def process_results(results: pd.DataFrame, column_names: List[str]) -> pd.DataFr
 
 
 def create_comparison_table(
-    results: pd.DataFrame, 
+    results: pd.DataFrame,
     main_results: pd.DataFrame,
     model_old: str,
     model_new: str,
     display_old: str,
-    display_new: str
+    display_new: str,
+    subset_sizes: dict[str, int],
 ) -> pd.DataFrame:
-    """Create a comparison table with old model, new model, and difference columns."""
-    # Create a mapping from model names to display names
     model_to_display = {model_old: display_old, model_new: display_new}
     main_results_named = main_results.copy()
     main_results_named.index = results["Model"].map(model_to_display)
-    
-    # Create the comparison DataFrame with proper ordering
-    # Get the data for each model using their display names
+
     old_data = main_results_named.loc[display_old]
     new_data = main_results_named.loc[display_new]
-    
-    # Create DataFrame with old model first, then new model
+
     df_display = pd.DataFrame({
         display_old: old_data,
         display_new: new_data
     })
-    
-    # Compute difference (NEW - OLD)
     df_display["Diff"] = df_display[display_new] - df_display[display_old]
-    
-    # Add average row
-    avg_row = pd.Series({
+
+    total_size = sum(subset_sizes.values())
+    macro_avg_row = pd.Series({
         display_old: df_display[display_old].mean(),
         display_new: df_display[display_new].mean(),
         "Diff": df_display["Diff"].mean()
-    }, name="Average")
-    
-    df_display = pd.concat([df_display, avg_row.to_frame().T])
-    
+    }, name="Macro Average")
+    micro_old = sum(df_display[display_old] * df_display.index.map(subset_sizes)) / total_size
+    micro_new = sum(df_display[display_new] * df_display.index.map(subset_sizes)) / total_size
+    micro_avg_row = pd.Series({
+        display_old: micro_old,
+        display_new: micro_new,
+        "Diff": micro_new - micro_old
+    }, name="Micro Average")
+
+    df_display = pd.concat([df_display, macro_avg_row.to_frame().T])
+    df_display = pd.concat([df_display, micro_avg_row.to_frame().T])
     return df_display
 
 
@@ -152,7 +190,7 @@ def style_table(df_display: pd.DataFrame, display_old: str, display_new: str) ->
          {'selector': 'th.row_heading', 'props': [('text-align', 'left')]},
          {'selector': 'td, th', 'props': [('border', '1px solid #888')]},
          {'selector': 'table', 'props': [('border-collapse', 'collapse')]},
-         {'selector': 'tr:last-child', 'props': [('font-weight', 'bold'), ('background-color', '#f0f0f0')]}
+         {'selector': 'tr:nth-last-child(-n+2)', 'props': [('font-weight', 'bold'), ('background-color', '#f0f0f0')]}
      ], axis=1)
     
     return styled
@@ -182,12 +220,13 @@ def main():
     
     # Process results
     main_results = process_results(results, column_names)
-    
-    # Create comparison table
+    subset_sizes = get_subset_sizes(column_names)
+
     df_display = create_comparison_table(
-        results, main_results, 
+        results, main_results,
         args.model_old, args.model_new,
-        args.display_old, args.display_new
+        args.display_old, args.display_new,
+        subset_sizes,
     )
     
     # Style the table

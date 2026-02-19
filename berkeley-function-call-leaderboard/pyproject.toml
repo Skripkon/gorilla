@@ -47,7 +47,8 @@ dependencies = [
     "sentence-transformers>=2.7.0",
     "faiss-cpu==1.11.0",
     "networkx==3.3",
-    "langchain_gigachat"
+    "langchain_gigachat",
+    "soundfile"
 ]
 
 [project.scripts]
