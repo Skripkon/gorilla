@@ -37,12 +37,12 @@ class GigaChatHandler(BaseHandler):
             base_url = os.getenv("GIGA_BASE_URL")
 
         self.client = GigaChat(
-            model=os.getenv("GIGA_MODEL", "GigaChat-2-MAX"),
+            model=model_name.split("__")[0],
             user=os.getenv("GIGA_USER", None),
             password=os.getenv("GIGA_PASSWORD", None),
             credentials=os.getenv("GIGA_CREDENTIALS", None),
             base_url=base_url,
-            auth_url=os.getenv("GIGA_AUTH_URL", "https://gigachat.sberdevices.ru/v1/token"),
+            auth_url=os.getenv("GIGA_AUTH_URL"),
             verify_ssl_certs=False,
             profanity_check=os.getenv("GIGA_PROFANITY_CHECK", False),
             repetition_penalty=1.0,

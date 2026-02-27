@@ -2071,6 +2071,35 @@ third_party_inference_model_map = {
     #########################################################
     # GigaChat models
     #########################################################
+
+    # GigaChat-3-Ultra:32.3.19.2
+
+    "GigaChat-3-Ultra:32.3.19.2--IFT-FC": ModelConfig(
+        model_name="GigaChat-3-Ultra:32.3.19.2--IFT-FC",
+        display_name="GigaChat-3-Ultra:32.3.19.2 (IFT)",
+        url="https://giga.chat",
+        org="SberDevices",
+        license="Proprietary",
+        model_handler=GigaChatHandler,
+        input_price=10,
+        output_price=10,
+        is_fc_model=True,
+        underscore_to_dot=True,
+    ),
+
+    "GigaChat-3-Ultra:32.3.19.2--PROD-FC": ModelConfig(
+        model_name="GigaChat-3-Ultra:32.3.19.2--PROD-FC",
+        display_name="GigaChat-3-Ultra:32.3.19.2 (PROD)",
+        url="https://giga.chat",
+        org="SberDevices",
+        license="Proprietary",
+        model_handler=GigaChatHandler,
+        input_price=10,
+        output_price=10,
+        is_fc_model=True,
+        underscore_to_dot=True,
+    ),
+
     "GigaChat-3-ULTRA--IFT-FC": ModelConfig(
         model_name="GigaChat-3-ULTRA--IFT-FC",
         display_name="GigaChat 3 ULTRA (IFT)",
